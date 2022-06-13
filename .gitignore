@@ -3,6 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Static
+api_yamdb/static/
+
+# Mail
+api_yamdb/sent_emails/
+
 # C extensions
 *.so
 
