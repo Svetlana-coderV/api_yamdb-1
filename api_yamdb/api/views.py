@@ -82,3 +82,15 @@ class UsersViewSet(viewsets.ModelViewSet):
                                                            **kwargs)
         new_response_data = [old_response_data.data]
         return Response(new_response_data)
+
+
+class CategoriesViewSet():
+    pass
+
+
+class GenresViewSet():
+    pass
+
+
+class TitleViewSet():
+    pass
