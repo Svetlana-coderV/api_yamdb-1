@@ -67,7 +67,7 @@ class Category(models.Model):
 
 class Genre(models.Model):
     name = models.CharField(
-        unique=True,
+        max_length=256,
         verbose_name='Жанр'
     )
     slug = models.SlugField(
@@ -85,7 +85,7 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(
-        unique=True,
+        max_length=256,
         verbose_name='Произведение',
     )
     year = models.IntegerField(
