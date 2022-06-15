@@ -8,7 +8,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import IsAuthenticated, IsAdminOrSuperUser
+from rest_framework.permissions import IsAuthenticated
 
 from reviews.models import Category, Genre, Title, User
 from .filter import TitleFilter
@@ -17,6 +17,7 @@ from .serializers import (
     CategoriesSerializer, GenresSerializer, SendCodeSerializer,
     GetJWTSerializer, UserSerializer, TitlesGetSerializer, TitlesPostSerializer
 )
+from .permissions import IsAdminOrSuperUser
 
 
 @api_view(['POST'])

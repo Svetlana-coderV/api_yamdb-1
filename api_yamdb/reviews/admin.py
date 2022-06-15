@@ -1,4 +1,4 @@
-from django.contrib import ModelAdmin, admin
+from django.contrib import admin
 
 from .models import Category, Genre, Title, User
 
@@ -11,21 +11,21 @@ class UserAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
 
 
-class CategoryAdmin(ModelAdmin):
+class CategoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'slug')
 
 
-class CommentAdmin(ModelAdmin):
+class CommentAdmin(admin.ModelAdmin):
     list_display = ('id', 'author', 'title', 'review', 'pub_date', 'text')
     search_fields = ('text',)
     list_filter = ('author', 'pub_date')
 
 
-class GenreAdmin(ModelAdmin):
+class GenreAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'slug')
 
 
-class TitleAdmin(ModelAdmin):
+class TitleAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'year', 'description')
     search_fields = ('description',)
     list_filter = ('genre', 'year')
