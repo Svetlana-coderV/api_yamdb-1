@@ -1,16 +1,22 @@
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.db.models import Avg
 from django.conf import settings
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminOrSuperUser
 
-from reviews.models import User
-from .serializers import SendCodeSerializer, GetJWTSerializer, UserSerializer
-from .permissions import IsAdminOrSuperUser
+from reviews.models import Category, Genre, Title, User
+from .filter import TitleFilter
+from .mixins import DestroyCreateListMixins
+from .serializers import (
+    CategoriesSerializer, GenresSerializer, SendCodeSerializer,
+    GetJWTSerializer, UserSerializer, TitlesGetSerializer, TitlesPostSerializer
+)
 
 
 @api_view(['POST'])
@@ -84,13 +90,27 @@ class UsersViewSet(viewsets.ModelViewSet):
         return Response(new_response_data)
 
 
-class CategoriesViewSet():
-    pass
+class CategoryViewSet(DestroyCreateListMixins):
+    """Вьюсет для модели Category."""
+    queryset = Category.objects.all()
+    serializer_class = CategoriesSerializer
 
 
-class GenresViewSet():
-    pass
+class GenreViewSet(DestroyCreateListMixins):
+    """Вьюсет для модели Genre."""
+    queryset = Genre.objects.all()
+    serializer_class = GenresSerializer
 
 
-class TitleViewSet():
-    pass
+class TitleViewSet(viewsets.ModelViewSet):
+    """Вьюсет для модели Title."""
+    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
+    serializer_class = TitleFilter
+    permission_classes = (IsAdminOrSuperUser,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return TitlesGetSerializer
+        return TitlesPostSerializer

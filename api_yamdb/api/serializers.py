@@ -41,6 +41,7 @@ class GenresSerializer(serializers.ModelSerializer):
             'slug'
         )
         model = Genre
+        lookup_field = 'slug'
 
 
 class TitlesPostSerializer(serializers.ModelSerializer):

@@ -1,13 +1,9 @@
-import datetime as dt
-
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 
-def validate_year(value):
-    if value > dt.datetime.now().year:
-        raise ValidationError(f'Указанный год больше нынешнего: {value}')
+from .validators import validate_year
+
 
 class User(AbstractUser):
     """Модель кастомных пользователей."""
@@ -57,7 +53,7 @@ class Category(models.Model):
         verbose_name='Категория'
     )
     slug = models.SlugField(
-        unique=True,
+        max_length=50,
         verbose_name='Адрес'
     )
 
@@ -71,7 +67,7 @@ class Category(models.Model):
 
 class Genre(models.Model):
     name = models.CharField(
-        max_length=256,
+        unique=True,
         verbose_name='Жанр'
     )
     slug = models.SlugField(
@@ -89,7 +85,7 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(
-        max_length=256,
+        unique=True,
         verbose_name='Произведение',
     )
     year = models.IntegerField(
@@ -108,7 +104,6 @@ class Title(models.Model):
     )
     category = models.ForeignKey(
         Category,
-        blank=True,
         null=True,
         on_delete=models.SET_NULL,
         related_name='titles',
@@ -121,7 +116,6 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
-
 
 
 # class Review(models.Model):
