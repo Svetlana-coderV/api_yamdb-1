@@ -1,3 +1,4 @@
+from xml.etree.ElementTree import Comment
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
@@ -7,10 +8,11 @@ from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
+from reviews.models import Review
 
 from reviews.models import User
-from .serializers import SendCodeSerializer, GetJWTSerializer, UserSerializer
-from .permissions import IsAdminOrSuperUser
+from .serializers import SendCodeSerializer, GetJWTSerializer, UserSerializer, ReviewSerializer, CommentSerializer
+from .permissions import IsAdminOrSuperUser, IsAuthorOrReadOnly
 
 
 @api_view(['POST'])
@@ -82,3 +84,21 @@ class UsersViewSet(viewsets.ModelViewSet):
                                                            **kwargs)
         new_response_data = [old_response_data.data]
         return Response(new_response_data)
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthorOrReadOnly]
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        title_id = self.kwargs.get('title_id')
+        return Review.objects.filter(title=title_id)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthorOrReadOnly]
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        review_id = self.kwargs.get('review_id')
+        return Comment.objects.filter(review=review_id)
