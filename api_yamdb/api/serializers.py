@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from reviews.models import Review
+from reviews.models import Review, Comment
 
 from reviews.models import User
 
@@ -27,25 +27,20 @@ class UserSerializer(serializers.ModelSerializer):
         )
         model = User
 
-# class TitleSerializer(serializers.ModelSerializer):
-#     average_rating = serializers.SerializerMethodField()
-#     def get_average_rating(self, obj):
-#         return obj.average_rating
-
-#     class Meta:
-#         pass
-
 
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
-            'author', 'title', 'text', 'score', 'created'
+            'author', 'title', 'text', 'score', 'pub_date'
         )
+        read_only_fields = ('title', 'pub_date')
         model = Review
 
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
-            'author', 'review', 'text', 'created'
+            'title', 'author', 'review', 'text', 'pub_date'
         )
+        read_only_fields = ('title', 'review', 'pub_date')
+        model = Comment
