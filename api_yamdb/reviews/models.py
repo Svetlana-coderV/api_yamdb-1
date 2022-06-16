@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 
@@ -7,7 +6,6 @@ from .validators import validate_year
 
 
 class User(AbstractUser):
-    """Модель кастомных пользователей."""
     username = models.TextField(max_length=150, unique=True)
     email = models.EmailField(max_length=254, unique=True)
     first_name = models.TextField(max_length=150, blank=True)
@@ -55,6 +53,7 @@ class Category(models.Model):
     )
     slug = models.SlugField(
         max_length=50,
+        unique=True,
         verbose_name='Адрес'
     )
 
@@ -120,7 +119,6 @@ class Title(models.Model):
 
 
 class Review(models.Model):
-    """Модель отзывов."""
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='reviews')
     title = models.ForeignKey(
@@ -145,7 +143,6 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
-    """Модель комментариев к отзывам."""
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='comments')
     title = models.ForeignKey(
