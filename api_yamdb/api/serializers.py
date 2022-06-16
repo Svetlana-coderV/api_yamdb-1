@@ -76,17 +76,13 @@ class TitlesGetSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = (
-            'author', 'title', 'text', 'score', 'pub_date'
-        )
-        read_only_fields = ('title', 'pub_date')
+        exclude = ('title',)
+        read_only_fields = ('pub_date')
         model = Review
 
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = (
-            'title', 'author', 'review', 'text', 'pub_date'
-        )
-        read_only_fields = ('title', 'review', 'pub_date')
+        exclude = ('title', 'review',)
+        read_only_fields = ('pub_date')
         model = Comment

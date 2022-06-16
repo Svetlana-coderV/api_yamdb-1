@@ -19,7 +19,7 @@ from .serializers import (
     GetJWTSerializer, UserSerializer, TitlesGetSerializer, TitlesPostSerializer,
     ReviewSerializer, CommentSerializer
 )
-from .permissions import IsAdminOrSuperUser, IsAuthorOrReadOnly
+from .permissions import IsAdminOrSuperUser, IsAuthorOrReadOnly, IsAdminOrReadOnly
 
 
 @api_view(['POST'])
@@ -120,7 +120,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
     serializer_class = ReviewSerializer
 
     def get_queryset(self):
@@ -133,7 +133,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
     serializer_class = CommentSerializer
 
     def get_queryset(self):
