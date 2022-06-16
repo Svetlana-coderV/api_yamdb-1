@@ -1,3 +1,4 @@
+from xml.etree.ElementTree import Comment
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
@@ -10,14 +11,15 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 
-from reviews.models import Category, Genre, Title, User
+from reviews.models import Category, Genre, Title, User, Review, Comment
 from .filter import TitleFilter
 from .mixins import DestroyCreateListMixins
 from .serializers import (
     CategoriesSerializer, GenresSerializer, SendCodeSerializer,
-    GetJWTSerializer, UserSerializer, TitlesGetSerializer, TitlesPostSerializer
+    GetJWTSerializer, UserSerializer, TitlesGetSerializer, TitlesPostSerializer,
+    ReviewSerializer, CommentSerializer
 )
-from .permissions import IsAdminOrSuperUser
+from .permissions import IsAdminOrSuperUser, IsAuthorOrReadOnly, IsAdminOrReadOnly
 
 
 @api_view(['POST'])
@@ -115,3 +117,30 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.request.method == 'GET':
             return TitlesGetSerializer
         return TitlesPostSerializer
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAdminOrReadOnly]
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        title_id = self.kwargs.get('title_id')
+        return Review.objects.filter(title=title_id)
+
+    def perform_create(self, serializer):
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        serializer.save(author=self.request.user, title=title)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAdminOrReadOnly]
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        review_id = self.kwargs.get('review_id')
+        return Comment.objects.filter(review=review_id)
+
+    def perform_create(self, serializer):
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
+        serializer.save(author=self.request.user, title=title)
