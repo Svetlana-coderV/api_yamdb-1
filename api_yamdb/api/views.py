@@ -19,7 +19,7 @@ from .serializers import (
     GetJWTSerializer, UserSerializer, TitlesGetSerializer, TitlesPostSerializer,
     ReviewSerializer, CommentSerializer
 )
-from .permissions import IsAdminOrSuperUser, IsAuthorOrReadOnly, IsAdminOrReadOnly
+from .permissions import IsAdminOrSuperUser, IsAdminOrReadOnly
 
 
 @api_view(['POST'])
@@ -94,19 +94,16 @@ class UsersViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(DestroyCreateListMixins):
-    """Вьюсет для модели Category."""
     queryset = Category.objects.all()
     serializer_class = CategoriesSerializer
 
 
 class GenreViewSet(DestroyCreateListMixins):
-    """Вьюсет для модели Genre."""
     queryset = Genre.objects.all()
     serializer_class = GenresSerializer
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    """Вьюсет для модели Title."""
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitleFilter
     permission_classes = (IsAdminOrSuperUser,)

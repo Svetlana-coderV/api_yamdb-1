@@ -1,7 +1,6 @@
 from rest_framework import serializers
-from reviews.models import Review, Comment
 
-from reviews.models import Category, Genre, Title, User
+from reviews.models import Category, Genre, Title, User, Review, Comment
 
 
 class SendCodeSerializer(serializers.Serializer):
@@ -77,12 +76,12 @@ class TitlesGetSerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         exclude = ('title',)
-        read_only_fields = ('pub_date')
+        read_only_fields = ('pub_date',)
         model = Review
 
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         exclude = ('title', 'review',)
-        read_only_fields = ('pub_date')
+        read_only_fields = ('pub_date',)
         model = Comment
