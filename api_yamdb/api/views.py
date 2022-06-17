@@ -59,7 +59,7 @@ def get_jwt_token(request):
     if default_token_generator.check_token(user, confirmation_code):
         refresh = RefreshToken.for_user(user)
         return Response(
-            {'access': str(refresh.access_token)},
+            {'token': str(refresh.access_token)},
             status=status.HTTP_200_OK
         )
     return Response(
@@ -96,17 +96,31 @@ class UsersViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(DestroyCreateListMixins):
     queryset = Category.objects.all()
     serializer_class = CategoriesSerializer
+    permission_classes = [IsAdminOrReadOnly]
+
+    def list(self, request, *args, **kwargs):
+        old_response_data = super(CategoryViewSet, self).list(request, *args,
+                                                              **kwargs)
+        new_response_data = [old_response_data.data]
+        return Response(new_response_data)
 
 
 class GenreViewSet(DestroyCreateListMixins):
     queryset = Genre.objects.all()
     serializer_class = GenresSerializer
+    permission_classes = [IsAdminOrReadOnly]
+
+    def list(self, request, *args, **kwargs):
+        old_response_data = super(GenreViewSet, self).list(request, *args,
+                                                              **kwargs)
+        new_response_data = [old_response_data.data]
+        return Response(new_response_data)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitleFilter
-    permission_classes = (IsAdminOrSuperUser,)
+    permission_classes = [IsAdminOrReadOnly]
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
 
@@ -114,6 +128,12 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.request.method == 'GET':
             return TitlesGetSerializer
         return TitlesPostSerializer
+
+    def list(self, request, *args, **kwargs):
+        old_response_data = super(TitleViewSet, self).list(request, *args,
+                                                              **kwargs)
+        new_response_data = [old_response_data.data]
+        return Response(new_response_data)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
