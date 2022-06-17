@@ -88,35 +88,17 @@ class UsersViewSet(viewsets.ModelViewSet):
         serializer.save(role=user.role, partial=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def list(self, request, *args, **kwargs):
-        old_response_data = super(UsersViewSet, self).list(request, *args,
-                                                           **kwargs)
-        new_response_data = [old_response_data.data]
-        return Response(new_response_data)
-
 
 class CategoryViewSet(DestroyCreateListMixins):
     queryset = Category.objects.all()
     serializer_class = CategoriesSerializer
     permission_classes = [IsAdminOrReadOnly]
 
-    def list(self, request, *args, **kwargs):
-        old_response_data = super(CategoryViewSet, self).list(request, *args,
-                                                              **kwargs)
-        new_response_data = [old_response_data.data]
-        return Response(new_response_data)
-
 
 class GenreViewSet(DestroyCreateListMixins):
     queryset = Genre.objects.all()
     serializer_class = GenresSerializer
     permission_classes = [IsAdminOrReadOnly]
-
-    def list(self, request, *args, **kwargs):
-        old_response_data = super(GenreViewSet, self).list(request, *args,
-                                                           **kwargs)
-        new_response_data = [old_response_data.data]
-        return Response(new_response_data)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -131,12 +113,6 @@ class TitleViewSet(viewsets.ModelViewSet):
             return TitlesGetSerializer
         return TitlesPostSerializer
 
-    def list(self, request, *args, **kwargs):
-        old_response_data = super(TitleViewSet, self).list(request, *args,
-                                                           **kwargs)
-        new_response_data = [old_response_data.data]
-        return Response(new_response_data)
-
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
@@ -149,12 +125,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=title)
-
-    def list(self, request, *args, **kwargs):
-        old_response_data = super(ReviewViewSet, self).list(request, *args,
-                                                            **kwargs)
-        new_response_data = [old_response_data.data]
-        return Response(new_response_data)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -171,9 +141,3 @@ class CommentViewSet(viewsets.ModelViewSet):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
         serializer.save(author=self.request.user, title=title, review=review)
-
-    def list(self, request, *args, **kwargs):
-        old_response_data = super(CommentViewSet, self).list(request, *args,
-                                                             **kwargs)
-        new_response_data = [old_response_data.data]
-        return Response(new_response_data)
