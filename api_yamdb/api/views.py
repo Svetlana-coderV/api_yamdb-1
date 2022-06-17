@@ -16,8 +16,8 @@ from .filter import TitleFilter
 from .mixins import DestroyCreateListMixins
 from .serializers import (
     CategoriesSerializer, GenresSerializer, SendCodeSerializer,
-    GetJWTSerializer, UserSerializer, TitlesGetSerializer, TitlesPostSerializer,
-    ReviewSerializer, CommentSerializer
+    GetJWTSerializer, UserSerializer, TitlesGetSerializer, ReviewSerializer,
+    TitlesPostSerializer, CommentSerializer
 )
 from .permissions import (
     IsAdminOrSuperUser, IsAdminOrReadOnly, IsAuthorOrIsStaff
