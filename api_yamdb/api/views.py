@@ -19,7 +19,9 @@ from .serializers import (
     GetJWTSerializer, UserSerializer, TitlesGetSerializer, TitlesPostSerializer,
     ReviewSerializer, CommentSerializer
 )
-from .permissions import IsAdminOrSuperUser, IsAdminOrReadOnly
+from .permissions import (
+    IsAdminOrSuperUser, IsAdminOrReadOnly, IsAuthorOrIsStaff
+)
 
 
 @api_view(['POST'])
@@ -112,7 +114,7 @@ class GenreViewSet(DestroyCreateListMixins):
 
     def list(self, request, *args, **kwargs):
         old_response_data = super(GenreViewSet, self).list(request, *args,
-                                                              **kwargs)
+                                                           **kwargs)
         new_response_data = [old_response_data.data]
         return Response(new_response_data)
 
@@ -131,33 +133,47 @@ class TitleViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         old_response_data = super(TitleViewSet, self).list(request, *args,
-                                                              **kwargs)
+                                                           **kwargs)
         new_response_data = [old_response_data.data]
         return Response(new_response_data)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAdminOrReadOnly]
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthorOrIsStaff]
 
     def get_queryset(self):
-        title_id = self.kwargs.get('title_id')
-        return Review.objects.filter(title=title_id)
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        return Review.objects.filter(title=title)
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=title)
 
+    def list(self, request, *args, **kwargs):
+        old_response_data = super(ReviewViewSet, self).list(request, *args,
+                                                            **kwargs)
+        new_response_data = [old_response_data.data]
+        return Response(new_response_data)
+
 
 class CommentViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAdminOrReadOnly]
     serializer_class = CommentSerializer
+    permission_classes = [IsAuthorOrIsStaff]
 
     def get_queryset(self):
-        review_id = self.kwargs.get('review_id')
-        return Comment.objects.filter(review=review_id)
+        review_id = self.kwargs.get("review_id")
+        title_id = self.kwargs.get("title_id")
+        review = get_object_or_404(Review, id=review_id, title=title_id)
+        return Comment.objects.filter(review=review)
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
-        serializer.save(author=self.request.user, title=title)
+        serializer.save(author=self.request.user, title=title, review=review)
+
+    def list(self, request, *args, **kwargs):
+        old_response_data = super(CommentViewSet, self).list(request, *args,
+                                                             **kwargs)
+        new_response_data = [old_response_data.data]
+        return Response(new_response_data)

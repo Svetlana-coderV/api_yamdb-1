@@ -74,6 +74,25 @@ class TitlesGetSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username',
+    )
+
+    def validate(self, data):
+        if self.context['request'].method != 'POST':
+            return data
+        title_id = self.context['view'].kwargs.get('title_id')
+        author = self.context['request'].user
+        review = Review.objects.filter(
+            author=author, title=title_id
+        )
+        if review.exists():
+            raise serializers.ValidationError(
+                'На каждое произведение можно опубликовать только один отзыв.'
+            )
+        return data
+
     class Meta:
         exclude = ('title',)
         read_only_fields = ('pub_date',)
@@ -81,7 +100,12 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username',
+    )
+
     class Meta:
         exclude = ('title', 'review',)
-        read_only_fields = ('pub_date',)
+        read_only_fields = ('title', 'review', 'pub_date')
         model = Comment
