@@ -4,10 +4,12 @@ from reviews.models import Category, Genre, Title, User, Review, Comment
 
 
 class SendCodeSerializer(serializers.Serializer):
+    """Сериализатор для отправки кода подтверждения."""
     email = serializers.EmailField(required=True)
     username = serializers.RegexField(regex=r'^[\w.@+-]+$', required=True)
 
     def validate_username(self, value):
+        """Запрет использования username 'me'."""
         if value == 'me':
             raise serializers.ValidationError(
                 "Такое имя использовать запрещено")
@@ -15,11 +17,13 @@ class SendCodeSerializer(serializers.Serializer):
 
 
 class GetJWTSerializer(serializers.Serializer):
+    """Сериализатор для получения JWT-токена."""
     username = serializers.CharField(required=True)
     confirmation_code = serializers.CharField(required=True)
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Сериализатор для пользователей."""
     class Meta:
         fields = (
             'username', 'email', 'first_name', 'last_name', 'bio', 'role'
@@ -28,6 +32,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
+    """Сериализатор для категорий произведений."""
     class Meta:
         exclude = ('id',)
         model = Category
@@ -35,16 +40,15 @@ class CategoriesSerializer(serializers.ModelSerializer):
 
 
 class GenresSerializer(serializers.ModelSerializer):
+    """Сериализатор для жанров произведений."""
     class Meta:
-        fields = (
-            'name',
-            'slug'
-        )
+        exclude = ('id',)
         model = Genre
         lookup_field = 'slug'
 
 
 class TitlesPostSerializer(serializers.ModelSerializer):
+    """Сериализатор для POST-запросов к произведениям."""
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
         slug_field='slug'
@@ -61,6 +65,7 @@ class TitlesPostSerializer(serializers.ModelSerializer):
 
 
 class TitlesGetSerializer(serializers.ModelSerializer):
+    """Сериализатор для GET-запросов к произведениям."""
     category = CategoriesSerializer(read_only=True)
     genre = GenresSerializer(
         read_only=True,
@@ -74,12 +79,19 @@ class TitlesGetSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    """Сериализатор для отзывов к произведениям."""
     author = serializers.SlugRelatedField(
         read_only=True,
         slug_field='username',
     )
 
+    class Meta:
+        exclude = ('title',)
+        read_only_fields = ('pub_date',)
+        model = Review
+
     def validate(self, data):
+        """Запрет публицакии только одного отзыва на каждое произведение."""
         if self.context['request'].method != 'POST':
             return data
         title_id = self.context['view'].kwargs.get('title_id')
@@ -93,19 +105,15 @@ class ReviewSerializer(serializers.ModelSerializer):
             )
         return data
 
-    class Meta:
-        exclude = ('title',)
-        read_only_fields = ('pub_date',)
-        model = Review
-
 
 class CommentSerializer(serializers.ModelSerializer):
+    """Сериализатор для комментариев к отзывам."""
     author = serializers.SlugRelatedField(
         read_only=True,
         slug_field='username',
     )
 
     class Meta:
-        exclude = ('title', 'review',)
-        read_only_fields = ('title', 'review', 'pub_date')
+        exclude = ('review',)
+        read_only_fields = ('review', 'pub_date')
         model = Comment

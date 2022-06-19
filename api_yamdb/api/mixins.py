@@ -7,6 +7,7 @@ class DestroyCreateListMixins(mixins.CreateModelMixin,
                               mixins.ListModelMixin,
                               mixins.DestroyModelMixin,
                               viewsets.GenericViewSet):
+    """Кастомный миксин для вьюсетов моделей Category и Genre."""
     permission_classes = (IsAdminOrSuperUser,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)

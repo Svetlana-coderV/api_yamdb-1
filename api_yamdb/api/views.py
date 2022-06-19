@@ -1,4 +1,3 @@
-from xml.etree.ElementTree import Comment
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
@@ -12,7 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 
 from reviews.models import Category, Genre, Title, User, Review, Comment
-from .filter import TitleFilter
+from reviews.filter import TitleFilter
 from .mixins import DestroyCreateListMixins
 from .serializers import (
     CategoriesSerializer, GenresSerializer, SendCodeSerializer,
@@ -71,6 +70,7 @@ def get_jwt_token(request):
 
 
 class UsersViewSet(viewsets.ModelViewSet):
+    """Вьюсет для модели User."""
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAdminOrSuperUser]
@@ -90,18 +90,21 @@ class UsersViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(DestroyCreateListMixins):
+    """Вьюсет для модели Category."""
     queryset = Category.objects.all()
     serializer_class = CategoriesSerializer
     permission_classes = [IsAdminOrReadOnly]
 
 
 class GenreViewSet(DestroyCreateListMixins):
+    """Вьюсет для модели Genre."""
     queryset = Genre.objects.all()
     serializer_class = GenresSerializer
     permission_classes = [IsAdminOrReadOnly]
 
 
 class TitleViewSet(viewsets.ModelViewSet):
+    """Вьюсет для модели Title."""
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitleFilter
     permission_classes = [IsAdminOrReadOnly]
@@ -115,21 +118,27 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    """Вьюсет для модели Review."""
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthorOrIsStaff]
 
+    def get_title(self):
+        return get_object_or_404(Title, id=self.kwargs.get('title_id'))
+
     def get_queryset(self):
-        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
-        return Review.objects.filter(title=title)
+        return Review.objects.filter(title=self.get_title())
 
     def perform_create(self, serializer):
-        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
-        serializer.save(author=self.request.user, title=title)
+        serializer.save(author=self.request.user, title=self.get_title())
 
 
 class CommentViewSet(viewsets.ModelViewSet):
+    """Вьюсет для модели Comment."""
     serializer_class = CommentSerializer
     permission_classes = [IsAuthorOrIsStaff]
+
+    def get_field(self, model, field):
+        return get_object_or_404(model, id=self.kwargs.get(f'{field}_id'))
 
     def get_queryset(self):
         review_id = self.kwargs.get("review_id")
@@ -138,6 +147,6 @@ class CommentViewSet(viewsets.ModelViewSet):
         return Comment.objects.filter(review=review)
 
     def perform_create(self, serializer):
-        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
-        review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
-        serializer.save(author=self.request.user, title=title, review=review)
+        serializer.save(author=self.request.user,
+                        title=self.get_field(Title, 'title'),
+                        review=self.get_field(Review, 'review'))

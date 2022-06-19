@@ -4,6 +4,7 @@ from .models import Category, Genre, Title, User, Review, Comment
 
 
 class UserAdmin(admin.ModelAdmin):
+    """Настройка админки пользователей."""
     list_display = ('id', 'username', 'email', 'first_name', 'last_name',
                     'bio', 'role')
     search_fields = ('username',)
@@ -12,16 +13,19 @@ class UserAdmin(admin.ModelAdmin):
 
 
 class CategoryAdmin(admin.ModelAdmin):
+    """Настройка админки категорий произведений."""
     list_display = ('id', 'name', 'slug')
     empty_value_display = '-пусто-'
 
 
 class GenreAdmin(admin.ModelAdmin):
+    """Настройка админки жанров произведений."""
     list_display = ('id', 'name', 'slug')
     empty_value_display = '-пусто-'
 
 
 class TitleAdmin(admin.ModelAdmin):
+    """Настройка админки произведений."""
     list_display = ('id', 'name', 'year', 'description', 'category')
     search_fields = ('name', 'description')
     list_filter = ('genre', 'year')
@@ -29,6 +33,7 @@ class TitleAdmin(admin.ModelAdmin):
 
 
 class ReviewAdmin(admin.ModelAdmin):
+    """Настройка админки отзывов к произведеням."""
     list_display = ('id', 'author', 'title', 'text', 'score', 'pub_date')
     search_fields = ('text',)
     list_filter = ('score', 'author', 'pub_date')
@@ -36,7 +41,8 @@ class ReviewAdmin(admin.ModelAdmin):
 
 
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'author', 'title', 'review', 'text', 'pub_date')
+    """Настройка админки комментариев к отзывам."""
+    list_display = ('id', 'author', 'review', 'text', 'pub_date')
     search_fields = ('text',)
     list_filter = ('author', 'pub_date')
     empty_value_display = '-пусто-'
