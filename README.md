@@ -51,7 +51,6 @@ python manage.py migrate
 ```
 python manage.py runserver
 ```
-<br>
 
 ### Импорт данных из прилагаемых .csv файлов (api_yamdb/static/data/) в базу данных проекта:
 
